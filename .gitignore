@@ -1,0 +1,29 @@
+# غیر ضروری برای ذخیره سازی در پایتون
+*.py[cod]
+*$py.class
+
+# بی نیاز از نسخه بندی
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+*.log
+*.tmp
+
+# ignore vs code IDE files
+.vscode/
+.idea/
+
+# دیتابیس لوکال
+*.sqlite3
+
+# جلوگیری از افشای اطلاعات
+.env
+env/
+config.json
+secrets.yaml
+
+# OS generated files
+.DS_Store
+Thumbs.db

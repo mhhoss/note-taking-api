@@ -29,6 +29,6 @@ pip install -r requirements.txt
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 
-python main.py
+python run.py
 
 **Quick run**: Click [here](./run.py) to view the script.

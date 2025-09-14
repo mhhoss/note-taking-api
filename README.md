@@ -6,6 +6,9 @@
 
 A simple **RESTful API** for creating, reading, updating, and deleting notes built with **Flask**.
 
+Database: **SQLite**
+
+
 ---
 
 ## Features & Goals
@@ -20,6 +23,11 @@ A simple **RESTful API** for creating, reading, updating, and deleting notes bui
 ## Installation:
 
 pip install -r requirements.txt
+
+**virtual environment**:
+
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 
 python main.py
 

@@ -10,6 +10,7 @@ __pycache__/
 
 *.log
 *.tmp
+*.temp
 
 # ignore vs code IDE files
 .vscode/

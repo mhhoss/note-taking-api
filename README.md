@@ -4,10 +4,9 @@
 
 # NOTE-TAKING-API
 
-A simple **RESTful API** for creating, reading, updating, and deleting notes built with **Flask**.
+A simple **CRUD RESTful API** for managing notes, built with **FastAPI**.
 
-Database: **SQLite**
-
+Persistent storage using **SQLite**.
 
 ---
 
@@ -20,15 +19,24 @@ Database: **SQLite**
 
 ---
 
-## Installation:
+## Installation & Setup:
 
-pip install -r requirements.txt
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/mhhoss/note-taking-api.git
+   cd note-taking-api
+2. Install the [requirements](./requirements.txt).
 
 **virtual environment**:
 
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 
-python run.py
+**Quick run**:
 
-**Quick run**: Click [here](./run.py) to view the script.
+    uvicorn main:app --reload
+
+Click [here](./main.py) to view the script.
+
+
+This project is licensed under the MIT License.

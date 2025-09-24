@@ -1,7 +1,5 @@
-from typing import Optional
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
-
 
 from models import Note
 

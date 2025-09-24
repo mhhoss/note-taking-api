@@ -1,12 +1,12 @@
-# غیر ضروری برای ذخیره سازی در پایتون
+# فایل های کامپایل شده غیر ضروری پایتون
 *.py[cod]
 *$py.class
+__pycache__/
+*.pyc
 
 # بی نیاز از نسخه بندی
 venv/
 .venv/
-__pycache__/
-*.pyc
 
 *.log
 *.tmp
@@ -18,12 +18,6 @@ __pycache__/
 
 # دیتابیس لوکال
 *.sqlite3
-
-# جلوگیری از افشای اطلاعات
-.env
-env/
-config.json
-secrets.yaml
 
 # OS generated files
 .DS_Store

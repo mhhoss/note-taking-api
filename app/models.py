@@ -6,16 +6,18 @@ import uuid
 
 # مدلسازی داده ها
 class Note(BaseModel):
-    id: str
+    id: str = Field(default_factory= lambda: str(uuid.uuid4()))
     name: str
-    content: str
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: Optional[datetime] = None
+    content: Optional[str] = None
+    created_at: datetime = Field(default_factory= datetime.now)
+    '''
+    نوشتن اسم یادداشت اجباریه ولی متن میتونه خالی باشه
+    بصورت خودکار آیدی و تاریخ ثبت برای یادداشت ها ساخته میشه
+    '''
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if not self.id:
-            self.id = str(uuid.uuid4())
-            '''
-            اگر آیدی مشخص نشده باشه اینجا ایجاد و مدلسازی میشه
-            '''
+
+class NoteUpdate(BaseModel):
+    name: Optional[str] = None
+    content: Optional[str] = None
+    # برای ایجاد ثبات و سادگی، با آپدیت کردن نت ها آیدی تغییری نمیکنه
+    

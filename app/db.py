@@ -1,0 +1,143 @@
+'''
+مدیریت اتصال توابع به دیتابیس:
+
+هر یادداشت: ...
+    شامل اطلاعات آیدی، نام یادداشت، متن و تاریخ ساخت میشه
+    با آیدی یکتا ساخته میشه و با همون آدرس پیدا میشه سریعا
+    تاریخش بر اساس تاریخ جلالی ثبت میشه با موقعیت مکانی تهران/ایران
+
+'''
+
+
+import jdatetime
+import sqlite3
+from sqlite3 import Connection
+from typing import Generator, Optional
+from uuid import uuid4
+import uuid
+from models import Note
+import logging
+
+
+# ---------- پیکربندی ----------
+DATABASE = 'notes.db'
+logger = logging.getLogger(__name__)  # ثبت و مدیریت بهتر خطا ها در لاگر
+
+
+# ---------- اتصال به دیتابیس ----------
+def connect_to_db() -> Generator[Connection, None, None]:
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row  # برای دسترسی به نام ستون و گرفتن خروجی دیکشنری
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+# ---------- row -> note ----------
+def _row_to_note(row: sqlite3.Row) -> Note:
+    '''
+    این تابع داخلیه و برای تبدیل سطر ها به نت استفاده میشه
+    تا از اضافه نویسی جلوگیری کنه و با صدا زدنش فرایند تبذیل رو انجام بده
+    '''
+    if row is None:
+        return None
+    note = dict(row)
+    return Note(**note)
+
+
+# ---------- ساخت جدول و شرط گذاری ----------
+def init_db():
+    create_table = '''
+        CREATE TABLE IF NOT EXISTS notes (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT,
+            created_at TEXT NOT NULL
+        )'''
+
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(create_table)  # کوئری ها اعمال میشه
+        conn.commit()
+    logger.info('جدول ساخته شد')
+
+
+# -----// CRUD functions for managing the database //-----
+def create_note(name: str, content: Optional[str]) -> Note:  # ورودی همین دو مورده
+    note_id = str(uuid.uuid4())
+    iran_now = jdatetime.datetime.now()
+    created_at = iran_now.strftime('%Y/%m/%d %H:%M')
+
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO notes (id, name, content, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (note_id, name, content, created_at),
+
+        )
+        conn.commit()
+        # چون از context manager و دستور with استفاده کردم خودکار close() میشه
+
+    return Note(id=note_id, name=name, content=content, created_at=created_at)
+    # مقدار دهی میشه و خروجی برمیگرده
+
+
+def get_all_notes() -> list[Note]:
+    with connect_to_db() as conn:
+        conn.row_factory = sqlite3.Row  # خروجی دیکشنری
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT * FROM notes ORDER BY created_at DESC')  # از جدید به قدیم
+        rows = cursor.fetchall()  # گرفتن همه ردیف ها
+
+        return [Note(**dict(row)) for row in rows]
+
+
+def get_note_by_id(note_id: str) -> Optional[Note]:
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM note WHERE id = ?', (note_id,))
+        cursor.fetchone()  # گرفتن ردیف مشخص بر اساس آیدی
+
+        return _row_to_note()
+
+
+def update_note(note_id: str, name: Optional[str] = None, content: Optional[str] = None) -> Optional[Note]:
+    existing_note = get_note_by_id(note_id)  # نوت آیدی رو از دیتابیس میگیره برای آپدیت
+    if existing_note is None:
+        return None
+
+    new_name = name if name is not None else existing_note.title
+    new_content = content if content is not None else existing_note.content
+
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE notes
+        SET name = ?, content = ?
+        WHERE id = ?
+    """, (new_name.name, new_content.content))
+    conn.commit()
+
+    return get_note_by_id(note_id)
+
+
+def delete_note(note_id: str) -> bool:  # deleted successfully= True
+    existing_note = get_note_by_id(note_id)
+    if existing_note is None:
+        return False
+    
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+    
+        cursor.execute('DELETE FROM note WHERE id = ?', (note_id,))
+        changed = cursor.rowcount
+        conn.commit()
+
+        return changed > 0
+        # اگر تغییرات برابر با صفر نباشه، عملیات حذف موفق بوده

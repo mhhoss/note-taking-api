@@ -48,26 +48,26 @@ def _row_to_note(row: sqlite3.Row) -> Note:
 
 # ---------- ساخت جدول و شرط گذاری ----------
 def init_db():
-    create_table = '''
+    create_table = """
         CREATE TABLE IF NOT EXISTS notes (
             id TEXT PRIMARY KEY,
             title TEXT NOT NULL,
             content TEXT,
             created_at TEXT NOT NULL
-        )'''
+        )"""
 
     with connect_to_db() as conn:
         cursor = conn.cursor()
         cursor.execute(create_table)  # کوئری ها اعمال میشه
         conn.commit()
-    logger.info('جدول ساخته شد')
+    logger.info("جدول ساخته شد")
 
 
-# -----// CRUD functions for managing the database //-----
+# -----// Database management using CRUD functions //-----
 def create_note(name: str, content: Optional[str]) -> Note:  # ورودی همین دو مورده
     note_id = str(uuid.uuid4())
     iran_now = jdatetime.datetime.now()
-    created_at = iran_now.strftime('%Y/%m/%d %H:%M')
+    created_at = iran_now.strftime("%Y/%m/%d %H:%M")
 
     with connect_to_db() as conn:
         cursor = conn.cursor()
@@ -128,6 +128,7 @@ def update_note(note_id: str, name: Optional[str] = None, content: Optional[str]
 
 
 def delete_note(note_id: str) -> bool:  # deleted successfully= True
+    # اینجا خروجی صرفا مشخص میکنه که حذف موفق بوده یا نه و خروجی نت حذف شده رو نشون نمیده
     existing_note = get_note_by_id(note_id)
     if existing_note is None:
         return False
@@ -135,7 +136,7 @@ def delete_note(note_id: str) -> bool:  # deleted successfully= True
     with connect_to_db() as conn:
         cursor = conn.cursor()
     
-        cursor.execute('DELETE FROM note WHERE id = ?', (note_id,))
+        cursor.execute("DELETE FROM note WHERE id = ?", (note_id,))
         changed = cursor.rowcount
         conn.commit()
 

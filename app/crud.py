@@ -1,75 +1,110 @@
-from datetime import datetime
-import uuid
-from fastapi import FastAPI, HTTPException
-from typing import List
+'''
+در این فایل منطق و توابع API نوشته شده
+'''
 
+
+import uuid
+from fastapi import HTTPException
+from typing import List, Optional
+
+import jdatetime
+
+from db import connect_to_db
 from models import Note, NoteUpdate
 
 
-app = FastAPI(
-    title= "Note Taking API",
-    description= "This is a simple RESTful API service to taking note"
-)
-
-
-notes_db = []
-
-
-@app.get("/")
+# /Root
 def root():
     return {"Message: API is running 🌪️"}
 
 
-@app.post("/notes/", response_model= Note)
-def create_note(note: Note):
+# ----------// CRUD functions //----------
+
+def create_note(note: Note) -> Note:
     '''
     ذخیره نوت جدید با آیدی یکتا
     '''
-    note.id = str(uuid.uuid4())
-    note.created_at = datetime.now()
-    notes_db.append(note)
-    return note
+    note_id = str(uuid.uuid4())
+    iran_now = jdatetime.datetime.now()
+    created_at = iran_now.strftime("%Y/%m/%d %H:%M")
+
+    with connect_to_db() as conn:
+        cursor = cursor.conn
+        cursor.execute(
+            """
+            INSERT INTO notes (id, name, content, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (note_id, note.title, note.content, created_at)
+        )
+        conn.commit()
+
+        
+    return Note(id=note_id, title=note.title, content=note.content, created_at=created_at)
 
 
-@app.get("/notes", response_model= List[Note])
-def list_notes():
+def get_all_notes() -> List[Note]:
     '''
     گرفتن کل نت ها به صورت لیست
     '''
-    return notes_db
+    with connect_to_db() as conn:
+        cursor = conn.cursor
+        cursor.execute('SELECT * FROM notes ORDER BY created_at DESC')
+        rows = cursor.fetchall()
+
+    return [Note(**dict(row)) for row in rows]
 
 
-@app.get("/notes/{note_id}", response_model=Note)
-def get_note_by_id(note_id: str):
+def get_note_by_id(note_id: str) -> Note:
     '''
     برگردوندن نوت براساس آیدی
     '''
-    found_note = next((note for note in notes_db if note.id == note_id), None)
-    if found_note:
-        return found_note
-    raise HTTPException(status_code=404, detail=f"Note {note_id}, not found!")
+    with connect_to_db() as conn:
+        cursor = conn.cursor
+        cursor.execute("SELECT * FROM notes WHERE id = ?")
+        row = cursor.fetchone()
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"Note {note_id} not found!")
+    
+    return Note(**dict(row))
 
 
-@app.put("/notes/{note_id}", response_model=Note)
-def update_note(note_id: str, updated_note: NoteUpdate):
+def update_note(note_id: str, updated_note: NoteUpdate) -> Note:
     '''
     بروز رسانی نت ها
     '''
-    found_note = next((note for note in notes_db if note.id == note_id), None)
-    if found_note:
-        found_note.title = updated_note.title
-        found_note.content = updated_note.content
-        return found_note
-    raise HTTPException(status_code=404, detail=f"note {note_id}, not found!")
+    existing_note = get_note_by_id(note_id)
+    if existing_note is None:
+        raise HTTPException(status_code=404, detail=f"note {note_id}, not found!")
+    
+    with connect_to_db() as conn:
+        cursor = conn.cursor
+        cursor.execute(
+            """
+            UPDATE notes
+            SET name = ?, content = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (updated_note.name, updated_note.content)
+        )
+        conn.commit()
+
+    return get_note_by_id(note_id)
 
 
-@app.delete("/notes/{note_id}", response_model=Note)
-def delete_note(note_id: str):
+def delete_note(note_id: str) -> Optional[Note]:
     '''
     حذف نت با آیدی یکتا
+    در صورت نبودن نت، None رو برمیگردونه
     '''
-    found_note = next((note for note in notes_db if note_id == note.id), None)
-    if found_note:
-        notes_db.remove(found_note)
-        return found_note
-    raise HTTPException(status_code=404, detail="Note not found!")
+    existing_note = get_note_by_id(note_id)
+    if existing_note is None:
+        return None
+    
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM notes WHERE id = ?", (note_id,))
+        conn.commit()
+
+    return existing_note

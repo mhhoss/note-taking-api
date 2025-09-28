@@ -15,7 +15,7 @@ from sqlite3 import Connection
 from typing import Generator, Optional
 from uuid import uuid4
 import uuid
-from models import Note
+from app.models import Note
 import logging
 
 
@@ -51,7 +51,7 @@ def init_db():
     create_table = """
         CREATE TABLE IF NOT EXISTS notes (
             id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
+            name TEXT NOT NULL,
             content TEXT,
             created_at TEXT NOT NULL
         )"""
@@ -64,6 +64,7 @@ def init_db():
 
 
 # -----// Database management using CRUD functions //-----
+
 def create_note(name: str, content: Optional[str]) -> Note:  # ورودی همین دو مورده
     note_id = str(uuid.uuid4())
     iran_now = jdatetime.datetime.now()
@@ -88,7 +89,6 @@ def create_note(name: str, content: Optional[str]) -> Note:  # ورودی همی
 
 def get_all_notes() -> list[Note]:
     with connect_to_db() as conn:
-        conn.row_factory = sqlite3.Row  # خروجی دیکشنری
         cursor = conn.cursor()
 
         cursor.execute('SELECT * FROM notes ORDER BY created_at DESC')  # از جدید به قدیم
@@ -101,7 +101,7 @@ def get_note_by_id(note_id: str) -> Optional[Note]:
     with connect_to_db() as conn:
         cursor = conn.cursor()
         
-        cursor.execute('SELECT * FROM note WHERE id = ?', (note_id,))
+        cursor.execute('SELECT * FROM notes WHERE id = ?', (note_id,))
         cursor.fetchone()  # گرفتن ردیف مشخص بر اساس آیدی
 
         return _row_to_note()
@@ -112,7 +112,7 @@ def update_note(note_id: str, name: Optional[str] = None, content: Optional[str]
     if existing_note is None:
         return None
 
-    new_name = name if name is not None else existing_note.title
+    new_name = name if name is not None else existing_note.name
     new_content = content if content is not None else existing_note.content
 
     with connect_to_db() as conn:
@@ -136,8 +136,8 @@ def delete_note(note_id: str) -> bool:  # deleted successfully= True
     with connect_to_db() as conn:
         cursor = conn.cursor()
     
-        cursor.execute("DELETE FROM note WHERE id = ?", (note_id,))
-        changed = cursor.rowcount
+        cursor.execute("DELETE FROM notes WHERE id = ?", (note_id,))
+        changed = cursor.rowcount  # تعداد ردیف هایی ک در آخرین دستور تغییر کردن
         conn.commit()
 
         return changed > 0

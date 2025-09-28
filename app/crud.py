@@ -9,8 +9,8 @@ from typing import List, Optional
 
 import jdatetime
 
-from db import connect_to_db
-from models import Note, NoteUpdate
+from app.db import connect_to_db
+from app.models import Note, NoteUpdate
 
 
 # /Root
@@ -35,12 +35,12 @@ def create_note(note: Note) -> Note:
             INSERT INTO notes (id, name, content, created_at)
             VALUES (?, ?, ?, ?)
             """,
-            (note_id, note.title, note.content, created_at)
+            (note_id, note.name, note.content, created_at)
         )
         conn.commit()
 
         
-    return Note(id=note_id, title=note.title, content=note.content, created_at=created_at)
+    return Note(id=note_id, name=note.name, content=note.content, created_at=created_at)
 
 
 def get_all_notes() -> List[Note]:

@@ -12,7 +12,7 @@
 import jdatetime
 import sqlite3
 from sqlite3 import Connection
-from typing import Generator, Optional
+from typing import Generator
 from uuid import uuid4
 import uuid
 from app.models import Note
@@ -65,7 +65,7 @@ def init_db():
 
 # -----// Database management using CRUD functions //-----
 
-def create_note(name: str, content: Optional[str]) -> Note:  # ورودی همین دو مورده
+def create_note(name: str, content: str | None) -> Note:  # ورودی همین دو مورده
     note_id = str(uuid.uuid4())
     iran_now = jdatetime.datetime.now()
     created_at = iran_now.strftime("%Y/%m/%d %H:%M")
@@ -97,7 +97,7 @@ def get_all_notes() -> list[Note]:
         return [Note(**dict(row)) for row in rows]
 
 
-def get_note_by_id(note_id: str) -> Optional[Note]:
+def get_note_by_id(note_id: str) -> Note | None:
     with connect_to_db() as conn:
         cursor = conn.cursor()
         
@@ -107,7 +107,7 @@ def get_note_by_id(note_id: str) -> Optional[Note]:
         return _row_to_note()
 
 
-def update_note(note_id: str, name: Optional[str] = None, content: Optional[str] = None) -> Optional[Note]:
+def update_note(note_id: str, name: str | None, content: str | None) -> str | None:
     existing_note = get_note_by_id(note_id)  # نوت آیدی رو از دیتابیس میگیره برای آپدیت
     if existing_note is None:
         return None

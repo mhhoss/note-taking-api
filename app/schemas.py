@@ -10,23 +10,22 @@
 
 
 from pydantic import BaseModel
-from typing import Optional
 
 
 # وقتی کاربر نوت جدید می‌سازه
 class NoteCreate(BaseModel):
     name: str
-    content: Optional[str] = None
+    content: str | None
 
 # وقتی کاربر نوت رو آپدیت می‌کنه
 class NoteUpdate(BaseModel):
-    name: Optional[str] = None
-    content: Optional[str] = None
+    name: str | None
+    content: str | None
 
 # وقتی نوت رو به کاربر برمیگردونیم
 class NoteResponse(BaseModel):
     id: str
     name: str
-    content: Optional[str]
+    content: str | None
     created_at: str
     # وقتی اطلاعات به این کلاس وارد میشود خروجی بصورت JSON خواهد بود

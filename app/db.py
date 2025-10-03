@@ -65,7 +65,7 @@ def init_db():
 
 # -----// Database management using CRUD functions //-----
 
-def create_note(name: str, content: str | None) -> Note:  # ورودی همین دو مورده
+def create_note(name: str, content: str | None = None) -> Note: 
     note_id = str(uuid.uuid4())
     iran_now = jdatetime.datetime.now()
     created_at = iran_now.strftime("%Y/%m/%d %H:%M")
@@ -107,7 +107,7 @@ def get_note_by_id(note_id: str) -> Note | None:
         return _row_to_note()
 
 
-def update_note(note_id: str, name: str | None, content: str | None) -> str | None:
+def update_note(note_id: str, name: str | None = None, content: str | None = None) -> str | None:
     existing_note = get_note_by_id(note_id)  # نوت آیدی رو از دیتابیس میگیره برای آپدیت
     if existing_note is None:
         return None

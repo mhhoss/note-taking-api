@@ -5,7 +5,7 @@
 
 import uuid
 from fastapi import HTTPException
-from typing import List, Optional
+from typing import List
 
 import jdatetime
 
@@ -93,7 +93,7 @@ def update_note(note_id: str, updated_note: NoteUpdate) -> Note:
     return get_note_by_id(note_id)
 
 
-def delete_note(note_id: str) -> Optional[Note]:
+def delete_note(note_id: str) -> Note | None:
     '''
     حذف نت با آیدی یکتا
     در صورت نبودن نت، None رو برمیگردونه

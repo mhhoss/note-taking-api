@@ -15,17 +15,17 @@ from pydantic import BaseModel
 # وقتی کاربر نوت جدید می‌سازه
 class NoteCreate(BaseModel):
     name: str
-    content: str | None
+    content: str | None = None
 
 # وقتی کاربر نوت رو آپدیت می‌کنه
 class NoteUpdate(BaseModel):
-    name: str | None
-    content: str | None
+    name: str | None = None
+    content: str | None = None
 
 # وقتی نوت رو به کاربر برمیگردونیم
 class NoteResponse(BaseModel):
     id: str
     name: str
-    content: str | None
+    content: str | None = None
     created_at: str
     # وقتی اطلاعات به این کلاس وارد میشود خروجی بصورت JSON خواهد بود

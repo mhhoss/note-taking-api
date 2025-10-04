@@ -13,19 +13,3 @@ class Note(BaseModel):
     نوشتن اسم یادداشت برای ثبت شدن اجباریه ولی متن میتونه خالی باشه
     بصورت خودکار آیدی و تاریخ ثبت برای یادداشت ها ساخته میشه
     '''
-
-class NoteCreate(BaseModel):
-    name: str
-    content: str | None = None
-
-
-class NoteUpdate(BaseModel):
-    name: str | None = None
-    content: str | None = None
-
-
-class NoteResponse(BaseModel):
-    id: str
-    name: str
-    content: str | None = None
-    created_at: str

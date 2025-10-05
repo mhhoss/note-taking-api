@@ -9,11 +9,11 @@
 '''
 
 
+import contextlib
 import jdatetime
 import sqlite3
 from sqlite3 import Connection
 from typing import Generator
-from uuid import uuid4
 import uuid
 from app.models import Note
 import logging
@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)  # ثبت و مدیریت بهتر خطا �
 
 
 # ---------- اتصال به دیتابیس ----------
+@contextlib.contextmanager
 def connect_to_db() -> Generator[Connection, None, None]:
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row  # برای دسترسی به نام ستون و گرفتن خروجی دیکشنری
@@ -101,10 +102,13 @@ def get_note_by_id(note_id: str) -> Note | None:
     with connect_to_db() as conn:
         cursor = conn.cursor()
         
-        cursor.execute('SELECT * FROM notes WHERE id = ?', (note_id,))
-        cursor.fetchone()  # گرفتن ردیف مشخص بر اساس آیدی
+        cursor.execute("SELECT * FROM notes WHERE id = ?", (note_id,))  # اون ویرگول باعث تاپل درنظر گرفته بشه نه رشته
+        row = cursor.fetchone()  # گرفتن ردیف مشخص بر اساس آیدی
 
-        return _row_to_note()
+        if row is None:
+            return None
+
+        return _row_to_note(row)
 
 
 def update_note(note_id: str, name: str | None = None, content: str | None = None) -> str | None:

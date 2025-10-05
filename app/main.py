@@ -6,7 +6,7 @@ from app.db import init_db, logger
 # برای مدیریت چرخش کار API
 def lifespan(app: FastAPI):
     init_db()  # راه اندازی دیتابیس
-    logger.info("API startup... 🚀")
+    logger.info("API startup... 📡")
     yield
     logger.info("API shutdown... 👾")
 

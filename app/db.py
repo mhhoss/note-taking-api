@@ -102,7 +102,7 @@ def get_note_by_id(note_id: str) -> Note | None:
     with connect_to_db() as conn:
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM notes WHERE id = ?", (note_id,))  # اون ویرگول باعث تاپل درنظر گرفته بشه نه رشته
+        cursor.execute("SELECT * FROM notes WHERE id = ?", (note_id,))
         row = cursor.fetchone()  # گرفتن ردیف مشخص بر اساس آیدی
 
         if row is None:

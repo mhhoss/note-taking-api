@@ -10,17 +10,13 @@ from typing import List
 import jdatetime
 
 from app.db import connect_to_db
-from app.models import Note, NoteUpdate
-
-
-# /Root
-def root():
-    return {"Message: API is running 🌪️"}
+from app.schemas import NoteCreate, NoteUpdate, NoteResponse
+from app.models import Note
 
 
 # ----------// CRUD functions //----------
 
-def create_note(note: Note) -> Note:
+def create_note(note: NoteCreate) -> NoteResponse:
     '''
     ذخیره نوت جدید با آیدی یکتا
     '''
@@ -29,7 +25,7 @@ def create_note(note: Note) -> Note:
     created_at = iran_now.strftime("%Y/%m/%d %H:%M")
 
     with connect_to_db() as conn:
-        cursor = cursor.conn
+        cursor = conn.cursor()
         cursor.execute(
             """
             INSERT INTO notes (id, name, content, created_at)
@@ -48,7 +44,7 @@ def get_all_notes() -> List[Note]:
     گرفتن کل نت ها به صورت لیست
     '''
     with connect_to_db() as conn:
-        cursor = conn.cursor
+        cursor = conn.cursor()
         cursor.execute('SELECT * FROM notes ORDER BY created_at DESC')
         rows = cursor.fetchall()
 
@@ -60,8 +56,8 @@ def get_note_by_id(note_id: str) -> Note:
     برگردوندن نوت براساس آیدی
     '''
     with connect_to_db() as conn:
-        cursor = conn.cursor
-        cursor.execute("SELECT * FROM notes WHERE id = ?")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM notes WHERE id = ?", (note_id,))
         row = cursor.fetchone()
 
     if row is None:
@@ -79,14 +75,18 @@ def update_note(note_id: str, updated_note: NoteUpdate) -> Note:
         raise HTTPException(status_code=404, detail=f"note {note_id}, not found!")
     
     with connect_to_db() as conn:
-        cursor = conn.cursor
+        cursor = conn.cursor()
         cursor.execute(
             """
             UPDATE notes
-            SET name = ?, content = ?, updated_at = ?
+            SET name = ?, content = ?
             WHERE id = ?
             """,
-            (updated_note.name, updated_note.content)
+            (
+                updated_note.name,
+                updated_note.content,
+                note_id
+            )
         )
         conn.commit()
 

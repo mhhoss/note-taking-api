@@ -10,12 +10,22 @@ Persistent storage using **SQLite**.
 
 ---
 
-## Features & Goals
-- Create a new note
+## Features
 - Get all notes
 - Get a single note by ID
+- Create a new note
 - Update an existing note
 - Delete a note
+
+### API Endpoints
+
+| Method | Endpoint        | Description           |
+|--------|-----------------|-----------------------|
+| GET    | /notes          | Get all notes         |
+| GET    | /notes/{id}     | Get note by ID        |
+| POST   | /notes          | Create a new note     |
+| PUT    | /notes/{id}     | Update a note         |
+| DELETE | /notes/{id}     | Delete a note         |
 
 ---
 
@@ -27,16 +37,24 @@ Persistent storage using **SQLite**.
    cd note-taking-api
 2. Install the [requirements](./requirements.txt).
 
-**virtual environment**:
+        pip install -r requirements.txt
 
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+
+### Virtual Environment
+
+1. Create:
+
+        ```bash
+        python -m venv venv
+
+2. Activate:
+
+        .\venv\Scripts\Activate.ps1
+
+
 
 **Quick run**:
 
-    uvicorn main:app --reload
+    uvicorn app.main:app --reload
 
-Click [here](./main.py) to view the script.
-
-
-This project is licensed under the MIT License.
+Click [here]([app/main.py](https://github.com/mhhoss/note-taking-api/blob/main/app/main.py)) to view the script.

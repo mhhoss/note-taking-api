@@ -25,5 +25,5 @@ class NoteResponse(BaseModel):
     id: str
     name: str
     content: str | None = None
-    created_at: str
+    timestamp: str
     # وقتی اطلاعات به این کلاس وارد میشود خروجی بصورت JSON خواهد بود

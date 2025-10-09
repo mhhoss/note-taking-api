@@ -2,10 +2,9 @@
 مدیریت اتصال توابع به دیتابیس:
 
 هر یادداشت: ...
-    شامل اطلاعات آیدی، نام یادداشت، متن و تاریخ ساخت میشه
-    با آیدی یکتا ساخته میشه و با همون آدرس پیدا میشه سریعا
-    تاریخش بر اساس تاریخ جلالی ثبت میشه با موقعیت مکانی تهران/ایران
-
+    شامل اطلاعات آیدی، نام یادداشت، متن و تاریخ ساخت و یا ویرایش اون میشه
+    با آیدی یکتا ساخته میشه و با همون آدرس پیدا میشه
+    تاریخ بر اساس تاریخ جلالی ثبت میشه با موقعیت مکانی تهران/ایران
 '''
 
 
@@ -54,7 +53,8 @@ def init_db():
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             content TEXT,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            is_edited INTEGER DEFAULT 0
         )"""
 
     with connect_to_db() as conn:
@@ -75,10 +75,10 @@ def create_note(name: str, content: str | None = None) -> Note:
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO notes (id, name, content, created_at)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO notes (id, name, content, created_at, is_edited)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (note_id, name, content, created_at),
+            (note_id, name, content, created_at, 0),
 
         )
         conn.commit()
@@ -111,21 +111,24 @@ def get_note_by_id(note_id: str) -> Note | None:
         return _row_to_note(row)
 
 
-def update_note(note_id: str, name: str | None = None, content: str | None = None) -> str | None:
+def update_note(note_id: str, name: str | None = None, content: str | None = None) -> Note | None:
     existing_note = get_note_by_id(note_id)  # نوت آیدی رو از دیتابیس میگیره برای آپدیت
     if existing_note is None:
         return None
 
     new_name = name if name is not None else existing_note.name
     new_content = content if content is not None else existing_note.content
+    
+    iran_now = jdatetime.datetime.now()
+    new_datetime = iran_now.strftime("%Y/%m/%d %H:%M")
 
     with connect_to_db() as conn:
         cursor = conn.cursor()
     cursor.execute("""
         UPDATE notes
-        SET name = ?, content = ?
+        SET name = ?, content = ?, created_at = ?, is_edited = ?
         WHERE id = ?
-    """, (new_name.name, new_content.content))
+    """, (new_name, new_content, new_datetime, 1, note_id))
     conn.commit()
 
     return get_note_by_id(note_id)

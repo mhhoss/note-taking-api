@@ -1,7 +1,6 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 from app.schemas import NoteCreate, NoteUpdate, NoteResponse
-from app.models import Note
 from app.crud import create_note, get_all_notes, get_note_by_id, update_note, delete_note
 
 
@@ -21,7 +20,7 @@ def create_new_note(note: NoteCreate):
     return create_note(note)
 
 
-@router.get("/", response_model= List[Note], summary= "دریافت لیست یادداشت ها")
+@router.get("/", response_model= List[NoteResponse], summary= "دریافت لیست یادداشت ها")
 def get_all_router_notes():
     '''
     گرفتن کل نت ها به صورت لیست
@@ -29,7 +28,7 @@ def get_all_router_notes():
     return get_all_notes()
 
 
-@router.get("/{note_id}", response_model=Note, summary= "دریافت یادداشت با شناسه")
+@router.get("/{note_id}", response_model=NoteResponse, summary= "دریافت یادداشت با شناسه")
 def get_router_note_by_id(note_id: str):
     '''
     برگردوندن نوت براساس آیدی
@@ -40,7 +39,7 @@ def get_router_note_by_id(note_id: str):
     return note
 
 
-@router.put("/{note_id}", response_model=Note, summary= "به روزرسانی یادداشت")
+@router.put("/{note_id}", response_model=NoteResponse, summary= "به روزرسانی یادداشت")
 def update_router_note(note_id: str, updated_note: NoteUpdate):
     '''
     بروز رسانی نت ها
@@ -51,7 +50,7 @@ def update_router_note(note_id: str, updated_note: NoteUpdate):
     return note
 
 
-@router.delete("/{note_id}", response_model=Note, summary= "حذف یادداشت")
+@router.delete("/{note_id}", response_model=NoteResponse, summary= "حذف یادداشت")
 def delete_router_note(note_id: str):
     '''
     حذف نت با آیدی یکتا

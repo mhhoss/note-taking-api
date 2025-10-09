@@ -1,10 +1,12 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.routers.notes import router
 from app.db import init_db, logger
 
 
 # برای مدیریت چرخش کار API
-def lifespan(app: FastAPI):
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     init_db()  # راه اندازی دیتابیس
     logger.info("API startup... 📡")
     yield

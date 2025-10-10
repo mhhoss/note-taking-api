@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 from app.schemas import NoteCreate, NoteUpdate, NoteResponse
-from app.crud import create_note, get_all_notes, get_note_by_id, update_note, delete_note
+from app.crud import create_note, format_note_response, get_all_notes, get_note_by_id, update_note, delete_note
 
 
 router = APIRouter(
@@ -36,7 +36,7 @@ def get_router_note_by_id(note_id: str):
     note = get_note_by_id(note_id)
     if not note:
         raise HTTPException(status_code=404, detail=f"Note {note_id}, not found!")
-    return note
+    return format_note_response(note)
 
 
 @router.put("/{note_id}", response_model=NoteResponse, summary= "به روزرسانی یادداشت")
@@ -47,7 +47,7 @@ def update_router_note(note_id: str, updated_note: NoteUpdate):
     note = update_note(note_id, updated_note)
     if not note:
         raise HTTPException(status_code=404, detail=f"note {note_id}, not found!")
-    return note
+    return format_note_response(note)
 
 
 @router.delete("/{note_id}", response_model=NoteResponse, summary= "حذف یادداشت")
@@ -58,4 +58,4 @@ def delete_router_note(note_id: str):
     note = delete_note(note_id)
     if not note:
         raise HTTPException(status_code=404, detail="یادداشت پیدا نشد!")
-    return note
+    return format_note_response(note)
